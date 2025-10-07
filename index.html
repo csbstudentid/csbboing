@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> CSB SMS Bomber Tool</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --container-bg: white;
+            --text-color: #333;
+            --border-color: #ddd;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --success-bg: #d4edda;
+            --success-border: #c3e6cb;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-border: #f5c6cb;
+            --error-text: #721c24;
+            --loading-color: #007bff;
+            --accent-color: #6c5ce7;
+            --accent-hover: #5649c0;
+        }
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --container-bg: #16213e;
+            --text-color: #e6e6e6;
+            --border-color: #2d4059;
+            --button-bg: #0056b3;
+            --button-hover: #003d82;
+            --success-bg: #28a745;
+            --success-border: #20c997;
+            --success-text: #fff;
+            --error-bg: #dc3545;
+            --error-border: #dc3545;
+            --error-text: #fff;
+            --loading-color: #0dcaf0;
+            --accent-color: #6c5ce7;
+            --accent-hover: #5649c0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
+        }
+        .container {
+            background: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-color), #a29bfe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 3px 10px rgba(108, 92, 231, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin: 0;
+            font-weight: 600;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+        input[type="tel"], input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-size: 15px;
+        }
+        input[type="tel"]:focus, input[type="number"]:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover:not(:disabled) {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            transition: opacity 0.3s;
+        }
+        .success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+        }
+        .error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+        }
+        .loading {
+            text-align: center;
+            color: var(--loading-color);
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: auto;
+        }
+        .theme-toggle:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--loading-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .telegram-section {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .telegram-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #0088cc;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 10px;
+        }
+        .telegram-btn:hover {
+            background-color: #0077b5;
+            transform: translateY(-2px);
+        }
+        .telegram-icon {
+            width: 20px;
+            height: 20px;
+        }
+        .info-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div class="container">
+        <div class="header">
+            <div class="logo">OTP</div>
+            <div>
+                <h1>OTP Bomber</h1>
+                <div class="subtitle">Professional OTP Testing Tool</div>
+            </div>
+        </div>
+        <form id="bomberForm">
+            <label for="phone">Phone Number (Bangladeshi format: 01xxxxxxxxx)</label>
+            <input type="tel" id="phone" name="phone" placeholder="e.g., 01712345678" required pattern="^01[3-9]\d{8}$">
+            
+            <label for="amount">Number of Attempts</label>
+            <input type="number" id="amount" name="amount" min="1" max="10" value="1" required>
+            
+            <button type="submit" id="submitBtn">Send OTPs</button>
+        </form>
+        
+        <div id="result"></div>
+        
+        <div class="telegram-section">
+            <p>Join our Telegram channel for updates</p>
+            <a href="https://t.me/csbpremimuhub" class="telegram-btn" target="_blank">
+                <svg class="telegram-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.14.141-.259.259-.374.261l.213-3.053 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.136-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                </svg>
+                Join Telegram
+            </a>
+        </div>
+        
+        <div class="info-text">
+            Use this tool responsibly and only for legitimate testing purposes.
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            const toggleBtn = document.querySelector('.theme-toggle');
+            toggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.querySelector('.theme-toggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        document.getElementById('bomberForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phone').value.trim();
+            const amount = parseInt(document.getElementById('amount').value);
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            // Client-side validation
+            if (!/^01[3-9]\d{8}$/.test(phone)) {
+                showResult('Invalid phone number format. Use Bangladeshi format like 01712345678.', 'error');
+                return;
+            }
+            if (amount < 1 || amount > 10) {
+                showResult('Amount must be between 1 and 10.', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner"></div>Sending...';
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p><div class="spinner"></div>Sending OTPs... Please wait.</p>';
+            resultDiv.style.display = 'block';
+            
+            try {
+                const apiUrl = `https://www.gajarbotol.site/apis/boom.php?phone=${encodeURIComponent(phone)}&amount=${amount}`;
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                if (!text.trim()) {
+                    throw new Error('Empty response from server');
+                }
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseError) {
+                    throw new Error(`Failed to parse JSON response: ${parseError.message}`);
+                }
+                
+                if (data.success) {
+                    showResult(`
+                        <strong>✅ Success!</strong><br>
+                        Message: ${data.message}<br>
+                        Phone: ${data.phone}<br>
+                        Attempts: ${data.attempts}<br>
+                        Total Requests Sent: ${data.total_requests_sent}<br>
+                        Developer: ${data.developer}
+                    `, 'success');
+                } else {
+                    showResult(`✅ Success: ${data.error || 'Unknown error occurred.'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`✅ send otp: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Send OTPs';
+            }
+        });
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<p>${message}</p>`;
+            resultDiv.className = type;
+            resultDiv.style.display = 'block';
+            resultDiv.style.opacity = '1';
+        }
+    </script>
+</body>
+</html>
